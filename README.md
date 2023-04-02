@@ -7,6 +7,18 @@ SPDX-FileContributor: Leon Matthes <leon.matthes@kdab.com>
 SPDX-License-Identifier: MIT OR Apache-2.0
 -->
 
+*Port for Sailfish OS (Rust 1.52.1, Qt 5.6)*
+
+Specific versions in Cargo.lock required:
+```
+cargo update -p cxx-build --precise 1.0.86
+cargo update -p cxx --precise 1.0.86
+cargo update -p once_cell --precise 1.14.0
+cargo update -p syn --precise 1.0.101
+cargo update -p quote --precise 1.0.23
+cargo update -p proc-macro2 --precise 1.0.43
+```
+
 # CXX-Qt
 
 [![Github](https://img.shields.io/badge/github-kdab%2Fcxx--qt-informational?logo=github)](https://github.com/kdab/cxx-qt)
