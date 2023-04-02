@@ -9,6 +9,7 @@ use crate::{
     QByteArray, QDate, QDateTime, QMargins, QMarginsF, QPersistentModelIndex, QPoint, QPointF,
     QRect, QRectF, QSize, QSizeF, QString, QTime, QUrl, QVariant,
 };
+use std::convert::TryInto;
 use core::{marker::PhantomData, mem::MaybeUninit};
 use cxx::{type_id, ExternType};
 

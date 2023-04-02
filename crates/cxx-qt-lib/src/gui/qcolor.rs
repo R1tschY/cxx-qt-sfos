@@ -4,6 +4,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 use cxx::{type_id, ExternType};
+use std::convert::TryFrom;
 use std::fmt;
 use std::mem::MaybeUninit;
 
@@ -569,7 +570,7 @@ impl fmt::Display for QColor {
         let g = self.green();
         let b = self.blue();
         let a = self.alpha();
-        write!(f, "RGBA({r}, {g}, {b}, {a})")
+        write!(f, "RGBA({}, {}, {}, {})", r, g, b, a)
     }
 }
 
@@ -585,7 +586,7 @@ impl fmt::Debug for QColor {
         // very simple heuristic to use a light foreground if background is dark and vice versa
         let fg = if (r + b + g) < 384 { 255 } else { 0 };
         // Use terminal escape codes to **actually** print the color
-        write!(f, "\x1b[48;2;{r};{g};{b}m\x1b[38;2;{fg};{fg};{fg}mRGBA({r}, {g}, {b}, {a})\x1b[39m\x1b[49m")
+        write!(f, "\x1b[48;2;{};{};{}m\x1b[38;2;{};{};{}mRGBA({}, {}, {}, {})\x1b[39m\x1b[49m", r, g, b, fg, fg, fg, r, g, b, a)
     }
 }
 

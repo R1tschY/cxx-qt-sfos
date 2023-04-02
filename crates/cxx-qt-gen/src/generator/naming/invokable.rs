@@ -32,7 +32,7 @@ impl From<&ImplItemMethod> for QInvokableName {
 impl CombinedIdent {
     /// For a given ident generate the Rust and C++ wrapper names
     fn wrapper_from_invokable(ident: &Ident) -> Self {
-        let ident = format_ident!("{ident}_wrapper");
+        let ident = format_ident!("{}_wrapper", ident);
         Self {
             cpp: format_ident!("{}", ident.to_string().to_case(Case::Camel)),
             rust: ident,

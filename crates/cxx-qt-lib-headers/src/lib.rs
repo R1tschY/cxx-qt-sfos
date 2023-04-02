@@ -16,7 +16,7 @@ use std::{fs::File, io::Write, path::Path};
 pub fn write_headers(directory: impl AsRef<Path>) {
     let directory = directory.as_ref();
     std::fs::create_dir_all(directory).expect("Could not create cxx-qt-lib header directory");
-    for (file_contents, file_name) in [
+    for (file_contents, file_name) in &[
         (include_str!("../include/core/qbytearray.h"), "qbytearray.h"),
         (
             include_str!("../include/core/qcoreapplication.h"),
@@ -84,8 +84,8 @@ pub fn write_headers(directory: impl AsRef<Path>) {
         (include_str!("../include/cxxqt_thread.h"), "cxxqt_thread.h"),
         (include_str!("../include/std_types.h"), "std_types.h"),
     ] {
-        let h_path = format!("{}/{file_name}", directory.display());
+        let h_path = format!("{}/{}", directory.display(), file_name);
         let mut header = File::create(h_path).expect("Could not create cxx-qt-lib header");
-        write!(header, "{file_contents}").expect("Could not write cxx-qt-lib header");
+        write!(header, "{}", file_contents).expect("Could not write cxx-qt-lib header");
     }
 }

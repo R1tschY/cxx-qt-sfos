@@ -47,7 +47,7 @@ impl ParsedCxxMappings {
             .unwrap_or_else(|| ident.to_owned());
 
         if let Some(namespace) = self.namespaces.get(ident) {
-            format!("::{namespace}::{cxx_name}")
+            format!("::{}::{}", namespace, cxx_name)
         } else {
             cxx_name
         }

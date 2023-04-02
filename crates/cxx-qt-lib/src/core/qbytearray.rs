@@ -152,7 +152,7 @@ impl std::fmt::Display for QByteArray {
     /// Convert the QByteArray to a Rust string
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         if let Ok(string) = String::from_utf8(self.into()) {
-            write!(f, "{string}")
+            write!(f, "{}", string)
         } else {
             write!(f, "{:?}", self.as_slice())
         }
@@ -161,7 +161,7 @@ impl std::fmt::Display for QByteArray {
 
 impl std::fmt::Debug for QByteArray {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{self}")
+        write!(f, "{}", self)
     }
 }
 

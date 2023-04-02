@@ -85,7 +85,7 @@ impl fmt::Display for QModelIndex {
 
 impl fmt::Debug for QModelIndex {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{self}")
+        write!(f, "{}", self)
     }
 }
 

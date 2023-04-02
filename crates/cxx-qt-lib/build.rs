@@ -153,7 +153,7 @@ fn main() {
     ];
 
     if feature_qt_gui_enabled {
-        rust_bridges.extend([
+        rust_bridges.extend(&[
             "core/qlist/qlist_qcolor",
             "core/qvariant/qvariant_qcolor",
             "core/qvector/qvector_qcolor",
@@ -166,11 +166,11 @@ fn main() {
     }
 
     if feature_qt_qml_enabled {
-        rust_bridges.extend(["qml/qqmlapplicationengine", "qml/qqmlengine"]);
+        rust_bridges.extend(&["qml/qqmlapplicationengine", "qml/qqmlengine"]);
     }
 
     for bridge in &rust_bridges {
-        println!("cargo:rerun-if-changed=src/{bridge}.rs");
+        println!("cargo:rerun-if-changed=src/{}.rs", bridge);
     }
 
     for include_path in qtbuild.include_paths() {
@@ -180,7 +180,7 @@ fn main() {
     }
 
     let mut builder =
-        cxx_build::bridges(rust_bridges.iter().map(|bridge| format!("src/{bridge}.rs")));
+        cxx_build::bridges(rust_bridges.iter().map(|bridge| format!("src/{}.rs", bridge)));
 
     let mut cpp_files = vec![
         "core/qbytearray",
@@ -211,7 +211,7 @@ fn main() {
     ];
 
     if feature_qt_gui_enabled {
-        cpp_files.extend([
+        cpp_files.extend(&[
             "gui/qcolor",
             "gui/qguiapplication",
             "gui/qvector2d",
@@ -221,12 +221,12 @@ fn main() {
     }
 
     if feature_qt_qml_enabled {
-        cpp_files.extend(["qml/qqmlapplicationengine", "qml/qqmlengine"]);
+        cpp_files.extend(&["qml/qqmlapplicationengine", "qml/qqmlengine"]);
     }
 
     for cpp_file in &cpp_files {
-        builder.file(format!("src/{cpp_file}.cpp"));
-        println!("cargo:rerun-if-changed=src/{cpp_file}.cpp");
+        builder.file(format!("src/{}.cpp", cpp_file));
+        println!("cargo:rerun-if-changed=src/{}.cpp", cpp_file);
     }
     builder.file("src/qt_types.cpp");
     println!("cargo:rerun-if-changed=src/qt_types.cpp");
@@ -234,7 +234,7 @@ fn main() {
 
     // Write this library's manually written C++ headers to files and add them to include paths
     let out_dir = std::env::var("OUT_DIR").unwrap();
-    cxx_qt_lib_headers::write_headers(format!("{out_dir}/cxx-qt-lib"));
+    cxx_qt_lib_headers::write_headers(format!("{}/cxx-qt-lib", out_dir));
     builder.include(out_dir);
 
     // Enable Qt Gui in C++ if the feature is enabled

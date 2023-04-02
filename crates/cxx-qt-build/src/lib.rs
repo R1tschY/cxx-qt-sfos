@@ -142,7 +142,7 @@ impl GeneratedCpp {
     ) -> GeneratedCppFilePaths {
         let cpp_directory = cpp_directory.as_ref();
         let header_directory = header_directory.as_ref();
-        for directory in [cpp_directory, header_directory] {
+        for directory in &[cpp_directory, header_directory] {
             std::fs::create_dir_all(directory)
                 .expect("Could not create directory to write cxx-qt generated files");
         }
@@ -223,8 +223,8 @@ fn generate_cxxqt_cpp_files(
     let mut generated_file_paths: Vec<GeneratedCppFilePaths> = Vec::with_capacity(rs_source.len());
     for rs_path in rs_source {
         let cpp_directory = format!("{}/cxx-qt-gen/src", env::var("OUT_DIR").unwrap());
-        let path = format!("{manifest_dir}/{}", rs_path.display());
-        println!("cargo:rerun-if-changed={path}");
+        let path = format!("{}/{}", manifest_dir, rs_path.display());
+        println!("cargo:rerun-if-changed={}", path);
 
         let generated_code = GeneratedCpp::new(&path)?;
         generated_file_paths.push(generated_code.write_to_directories(cpp_directory, &header_dir));
@@ -381,20 +381,20 @@ impl CxxQtBuilder {
         // The include directory needs to be namespaced by crate name when exporting for a C++ build system,
         // but for using cargo build without a C++ build system, OUT_DIR is already namespaced by crate name.
         let header_root = match env::var("CXXQT_EXPORT_DIR") {
-            Ok(export_dir) => format!("{export_dir}/{}", env::var("CARGO_PKG_NAME").unwrap()),
+            Ok(export_dir) => format!("{}/{}", export_dir, env::var("CARGO_PKG_NAME").unwrap()),
             Err(_) => out_dir,
         };
-        let generated_header_dir = format!("{header_root}/cxx-qt-gen");
+        let generated_header_dir = format!("{}/cxx-qt-gen", header_root);
 
         let mut qtbuild = qt_build_utils::QtBuild::new(self.qt_modules.into_iter().collect())
             .expect("Could not find Qt installation");
         qtbuild.cargo_link_libraries();
 
         // Write cxx-qt-lib and cxx headers
-        cxx_qt_lib_headers::write_headers(format!("{header_root}/cxx-qt-lib"));
-        std::fs::create_dir_all(format!("{header_root}/rust"))
+        cxx_qt_lib_headers::write_headers(format!("{}/cxx-qt-lib", header_root));
+        std::fs::create_dir_all(format!("{}/rust", header_root))
             .expect("Could not create cxx header directory");
-        let h_path = format!("{header_root}/rust/cxx.h");
+        let h_path = format!("{}/rust/cxx.h", header_root);
         // Wrap the File in a block scope so the file is closed before the compiler is run.
         // Otherwise MSVC fails to open cxx.h because the process for this build script already has it open.
         {
@@ -411,7 +411,7 @@ impl CxxQtBuilder {
         // to avoid bloating the binary.
         let mut cc_builder_whole_archive = cc::Build::new();
         cc_builder_whole_archive.link_lib_modifier("+whole-archive");
-        for builder in [&mut self.cc_builder, &mut cc_builder_whole_archive] {
+        for builder in &mut [&mut self.cc_builder, &mut cc_builder_whole_archive] {
             builder.cpp(true);
             // MSVC
             builder.flag_if_supported("/std:c++17");
@@ -450,7 +450,7 @@ impl CxxQtBuilder {
                 // when running the build script. The same error will be encountered when the proc_macro
                 // expands after the build script runs, which allows rust-analyzer to make sense of the
                 // error and point the user to the code causing the problem.
-                println!("cargo:warning=cxx-qt-build failed to parse cxx_qt::bridge: {e:?}");
+                println!("cargo:warning=cxx-qt-build failed to parse cxx_qt::bridge: {:?}", e);
                 return;
             }
         }

@@ -54,7 +54,7 @@ pub enum QtBuildError {
 }
 
 fn command_help_output(command: &str) -> std::io::Result<std::process::Output> {
-    Command::new(command).args(["--help"]).output()
+    Command::new(command).args(&["--help"]).output()
 }
 
 /// Linking executables (including tests) with Cargo that link to Qt fails to link with GNU ld.bfd,
@@ -68,7 +68,7 @@ pub fn setup_linker() {
         return;
     }
 
-    let flags = env::var("CARGO_ENCODED_RUSTFLAGS").unwrap();
+    let flags = env::var("RUSTFLAGS").unwrap();
     // Don't override custom flags
     if !flags.contains("-fuse-ld") {
         // ld is the system default linker. On Linux, this is usually GNU ld.bfd, but it may be symlinked to another
@@ -187,7 +187,7 @@ impl QtBuild {
         println!("cargo:rerun-if-env-changed=QT_VERSION_MAJOR");
         fn verify_candidate(candidate: &str) -> Result<(&str, versions::SemVer), QtBuildError> {
             match Command::new(candidate)
-                .args(["-query", "QT_VERSION"])
+                .args(&["-query", "QT_VERSION"])
                 .output()
             {
                 Err(e) if e.kind() == std::io::ErrorKind::NotFound => Err(QtBuildError::QtMissing),
@@ -201,7 +201,7 @@ impl QtBuild {
                         let qmake_version = versions::SemVer::new(&version_string).unwrap();
                         if let Ok(env_version) = env::var("QT_VERSION_MAJOR") {
                             let env_version = match env_version.trim().parse::<u32>() {
-                                Err(e) if *e.kind() == std::num::IntErrorKind::Empty => {
+                                Err(_) if env_version.trim().is_empty() => {
                                     println!(
                                         "cargo:warning=QT_VERSION_MAJOR environment variable defined but empty"
                                     );
@@ -281,7 +281,7 @@ impl QtBuild {
                             qt_version_major,
                         });
                     }
-                    eprintln!("Candidate qmake executable `{executable_name}` is for Qt{qmake_version} but QT_VERISON_MAJOR environment variable specified as {qt_version_major}. Trying next candidate executable name `{}`...", candidate_executable_names[index + 1]);
+                    eprintln!("Candidate qmake executable `{}` is for Qt{} but QT_VERISON_MAJOR environment variable specified as {}. Trying next candidate executable name `{}`...", executable_name, qmake_version, qt_version_major, candidate_executable_names[index + 1]);
                     continue;
                 }
                 Err(QtBuildError::QtMissing) => continue,
@@ -296,7 +296,7 @@ impl QtBuild {
     pub fn qmake_query(&self, var_name: &str) -> String {
         std::str::from_utf8(
             &Command::new(&self.qmake_executable)
-                .args(["-query", var_name])
+                .args(&["-query", var_name])
                 .output()
                 .unwrap()
                 .stdout,
@@ -309,7 +309,7 @@ impl QtBuild {
     /// Tell Cargo to link each Qt module.
     pub fn cargo_link_libraries(&self) {
         let lib_path = self.qmake_query("QT_INSTALL_LIBS");
-        println!("cargo:rustc-link-search={lib_path}");
+        println!("cargo:rustc-link-search={}", lib_path);
 
         let target = env::var("TARGET");
         let prefix = match &target {
@@ -327,7 +327,7 @@ impl QtBuild {
             let framework = match &target {
                 Ok(target) => {
                     if target.contains("apple") {
-                        Path::new(&format!("{lib_path}/Qt{qt_module}.framework")).exists()
+                        Path::new(&format!("{}/Qt{}.framework", lib_path, qt_module)).exists()
                     } else {
                         false
                     }
@@ -337,12 +337,15 @@ impl QtBuild {
 
             let (link_lib, prl_path) = if framework {
                 (
-                    format!("framework=Qt{qt_module}"),
-                    format!("{lib_path}/Qt{qt_module}.framework/Resources/Qt{qt_module}.prl"),
+                    format!("framework=Qt{}", qt_module),
+                    format!(
+                        "{}/Qt{}.framework/Resources/Qt{}.prl",
+                        lib_path, qt_module, qt_module
+                    ),
                 )
             } else {
                 (
-                    format!("Qt{}{qt_module}", self.version.major),
+                    format!("Qt{}{}", self.version.major, qt_module),
                     format!(
                         "{}/{}Qt{}{}.prl",
                         lib_path, prefix, self.version.major, qt_module
@@ -350,14 +353,14 @@ impl QtBuild {
                 )
             };
 
-            println!("cargo:rustc-link-lib={link_lib}");
+            println!("cargo:rustc-link-lib={}", link_lib);
 
             match std::fs::read_to_string(&prl_path) {
                 Ok(prl) => {
                     for line in prl.lines() {
                         if let Some(line) = line.strip_prefix("QMAKE_PRL_LIBS = ") {
                             parse_cflags::parse_libs_cflags(
-                                &format!("Qt{}{qt_module}", self.version.major),
+                                &format!("Qt{}{}", self.version.major, qt_module),
                                 line.replace(r"$$[QT_INSTALL_LIBS]", &lib_path)
                                     .replace(r"$$[QT_INSTALL_PREFIX]", &lib_path)
                                     .as_bytes(),
@@ -381,7 +384,7 @@ impl QtBuild {
         let root_path = self.qmake_query("QT_INSTALL_HEADERS");
         let mut paths = Vec::new();
         for qt_module in &self.qt_modules {
-            paths.push(format!("{root_path}/Qt{qt_module}"));
+            paths.push(format!("{}/Qt{}", root_path, qt_module));
         }
         paths.push(root_path);
         paths.iter().map(PathBuf::from).collect()
@@ -428,7 +431,7 @@ impl QtBuild {
         //
         //              qmake -query
         //
-        for qmake_query_var in [
+        for qmake_query_var in &[
             "QT_HOST_LIBEXECS/get",
             "QT_HOST_LIBEXECS",
             "QT_HOST_BINS/get",
@@ -438,8 +441,8 @@ impl QtBuild {
             "QT_INSTALL_BINS/get",
             "QT_INSTALL_BINS",
         ] {
-            let executable_path = format!("{}/{tool_name}", self.qmake_query(qmake_query_var));
-            match Command::new(&executable_path).args(["-help"]).output() {
+            let executable_path = format!("{}/{}", self.qmake_query(qmake_query_var), tool_name);
+            match Command::new(&executable_path).args(&["-help"]).output() {
                 Ok(_) => return Ok(executable_path),
                 Err(_) => continue,
             }
@@ -470,7 +473,7 @@ impl QtBuild {
         }
 
         let cmd = Command::new(self.moc_executable.as_ref().unwrap())
-            .args([
+            .args(&[
                 &include_args,
                 input_path.to_str().unwrap(),
                 "-o",
@@ -513,7 +516,8 @@ impl QtBuild {
 
         let qml_uri_cpp_symbol_safe = import_name.replace('.', "_");
         let output_path = PathBuf::from(&format!(
-            "{out_dir}/{qml_uri_cpp_symbol_safe}_qmltyperegistration.cpp"
+            "{}/{}_qmltyperegistration.cpp",
+            out_dir, qml_uri_cpp_symbol_safe
         ));
 
         let mut args = vec![
@@ -535,56 +539,63 @@ impl QtBuild {
         let cmd = Command::new(self.qmltyperegistrar_executable.as_ref().unwrap())
             .args(args)
             .output()
-            .unwrap_or_else(|_| panic!("qmltyperegistrar failed for {import_name}"));
+            .unwrap_or_else(|_| panic!("qmltyperegistrar failed for {}", import_name));
 
         if !cmd.status.success() {
             panic!(
-                "qmltyperegistrar failed for {import_name}:\n{}",
+                "qmltyperegistrar failed for {}:\n{}",
+                import_name,
                 String::from_utf8_lossy(&cmd.stderr)
             );
         }
 
-        let plugin_class_name = format!("{qml_uri_cpp_symbol_safe}_plugin");
+        let plugin_class_name = format!("{}_plugin", qml_uri_cpp_symbol_safe);
         // This function is generated by qmltyperegistrar
-        let register_types_function = format!("qml_register_types_{qml_uri_cpp_symbol_safe}");
+        let register_types_function = format!("qml_register_types_{}", qml_uri_cpp_symbol_safe);
 
-        let qml_plugin_cpp_path = PathBuf::from(format!("{out_dir}/{plugin_class_name}.cpp"));
+        let qml_plugin_cpp_path = PathBuf::from(format!("{}/{}.cpp", out_dir, plugin_class_name));
         let mut qml_plugin_cpp = File::create(&qml_plugin_cpp_path).unwrap();
         write!(
             qml_plugin_cpp,
             r#"
 #include <QtQml/qqmlextensionplugin.h>
 
-extern void {register_types_function}();
+extern void {}();
 
-class {plugin_class_name} : public QQmlEngineExtensionPlugin
+class {} : public QQmlEngineExtensionPlugin
 {{
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QQmlEngineExtensionInterface")
 
 public:
-    {plugin_class_name}(QObject *parent = nullptr) : QQmlEngineExtensionPlugin(parent)
+    {}(QObject *parent = nullptr) : QQmlEngineExtensionPlugin(parent)
     {{
-        volatile auto registration = &{register_types_function};
+        volatile auto registration = &{};
         Q_UNUSED(registration);
     }}
 }};
 
 // The moc-generated cpp file doesn't compile on its own; it needs to be #included here.
-#include "moc_{plugin_class_name}.cpp.cpp"
-"#
+#include "moc_{}.cpp.cpp"
+"#,
+            register_types_function,
+            plugin_class_name,
+            plugin_class_name,
+            register_types_function,
+            plugin_class_name
         )
         .unwrap();
         self.moc(&qml_plugin_cpp_path);
 
-        let qml_plugin_init_path = PathBuf::from(format!("{out_dir}/{plugin_class_name}_init.cpp"));
+        let qml_plugin_init_path = PathBuf::from(format!("{}/{}_init.cpp", out_dir, plugin_class_name));
         let mut qml_plugin_init = File::create(&qml_plugin_init_path).unwrap();
         write!(
             qml_plugin_init,
             r#"
 #include <QtPlugin>
-Q_IMPORT_PLUGIN({plugin_class_name});
-"#
+Q_IMPORT_PLUGIN({});
+"#,
+            plugin_class_name
         )
         .unwrap();
 
@@ -612,7 +623,7 @@ Q_IMPORT_PLUGIN({plugin_class_name});
         ));
 
         let cmd = Command::new(self.rcc_executable.as_ref().unwrap())
-            .args([
+            .args(&[
                 input_path.to_str().unwrap(),
                 "-o",
                 output_path.to_str().unwrap(),
@@ -632,7 +643,7 @@ Q_IMPORT_PLUGIN({plugin_class_name});
 
         // Add the qrc file contents to the cargo rerun list
         let cmd_list = Command::new(self.rcc_executable.as_ref().unwrap())
-            .args(["--list", input_path.to_str().unwrap()])
+            .args(&["--list", input_path.to_str().unwrap()])
             .output()
             .unwrap_or_else(|_| panic!("rcc --list failed for {}", input_path.display()));
 

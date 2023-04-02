@@ -154,7 +154,7 @@ fn to_cpp_string(ty: &Type, cxx_mapping: &ParsedCxxMappings) -> Result<String> {
         // void which fails in C++
         _others => Err(Error::new(
             ty.span(),
-            format!("Unsupported type: {_others:?}"),
+            format!("Unsupported type: {:?}", _others),
         )),
     }
 }
@@ -224,7 +224,7 @@ fn path_segment_to_string(
     Ok(format!(
         "{ident}{args}",
         ident = ident,
-        args = args.map_or_else(|| "".to_owned(), |arg| format!("<{arg}>"))
+        args = args.map_or_else(|| "".to_owned(), |arg| format!("<{}>", arg))
     ))
 }
 

@@ -90,29 +90,31 @@ pub fn generate_cpp_invokables(
 
         generated.methods.push(CppFragment::Pair {
             header: format!(
-                "Q_INVOKABLE {is_virtual}{cxx_ty} {ident}({parameter_types}){is_const}{is_final}{is_override};",
-                cxx_ty = if let Some(cxx_ty) = &cxx_ty {
-                    cxx_ty.as_cxx_ty()
-                } else {
-                    "void"
-                },
-                ident = idents.name.cpp,
-                parameter_types = parameter_types,
-                is_final = if invokable.specifiers.contains(&ParsedQInvokableSpecifiers::Final) {
-                    " final"
-                } else {
-                    ""
-                },
-                is_override = if invokable.specifiers.contains(&ParsedQInvokableSpecifiers::Override) {
-                    " override"
-                } else {
-                    ""
-                },
-                is_virtual = if invokable.specifiers.contains(&ParsedQInvokableSpecifiers::Virtual) {
+                "Q_INVOKABLE {}{} {}({}){}{}{};",
+                if invokable.specifiers.contains(&ParsedQInvokableSpecifiers::Virtual) {
                     "virtual "
                 } else {
                     ""
                 },
+                if let Some(cxx_ty) = &cxx_ty {
+                    cxx_ty.as_cxx_ty()
+                } else {
+                    "void"
+                },
+                idents.name.cpp,
+                parameter_types,
+                is_const,
+                if invokable.specifiers.contains(&ParsedQInvokableSpecifiers::Final) {
+                    " final"
+                } else {
+                    ""
+                },
+                if invokable.specifiers.contains(&ParsedQInvokableSpecifiers::Override) {
+                    " override"
+                } else {
+                    ""
+                },
+
             ),
             source: formatdoc! {
                 r#"

@@ -38,25 +38,25 @@ impl From<&Ident> for QObjectName {
 
 /// For a given ident generate the CxxQtThread ident
 fn cxx_qt_thread_class_from_ident(ident: &Ident) -> Ident {
-    format_ident!("{ident}CxxQtThread")
+    format_ident!("{}CxxQtThread", ident)
 }
 
 /// For a given ident generate the CxxQtThreadQueuedFn ident
 fn cxx_qt_thread_queued_fn_struct_from_ident(ident: &Ident) -> Ident {
-    format_ident!("{ident}CxxQtThreadQueuedFn")
+    format_ident!("{}CxxQtThreadQueuedFn", ident)
 }
 
 impl CombinedIdent {
     /// For a given ident generate the C++ class name
     fn cpp_class_from_rust_struct(ident: Ident) -> Self {
-        let rust = format_ident!("{ident}Qt");
+        let rust = format_ident!("{}Qt", ident);
         Self { cpp: ident, rust }
     }
 
     /// For a given ident generate the Rust and C++ names
     fn from_rust_struct(ident: Ident) -> Self {
         Self {
-            cpp: format_ident!("{ident}Rust"),
+            cpp: format_ident!("{}Rust", ident),
             rust: ident,
         }
     }

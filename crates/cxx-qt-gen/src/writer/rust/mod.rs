@@ -15,7 +15,7 @@ use syn::Ident;
 /// Once static methods are possible in CXX this could be removed
 /// https://github.com/dtolnay/cxx/issues/447
 fn mangle(name: &str, object: &Ident) -> Ident {
-    format_ident!("{}", format!("{name}_{object}").to_case(Case::Snake))
+    format_ident!("{}", format!("{}_{}", name, object).to_case(Case::Snake))
 }
 
 /// Return common blocks for CXX bridge which the C++ writer adds as well
@@ -133,7 +133,7 @@ fn cxx_qt_common_blocks(qobject: &GeneratedRustQObject) -> Vec<TokenStream> {
 pub fn write_rust(generated: &GeneratedRustBlocks) -> TokenStream {
     // Build the module idents
     let cxx_mod_ident = &generated.cxx_mod.ident;
-    let cxx_qt_mod_ident = format_ident!("cxx_qt_{cxx_mod_ident}");
+    let cxx_qt_mod_ident = format_ident!("cxx_qt_{}", cxx_mod_ident);
 
     // Retrieve the module contents and namespace
     let mut cxx_mod = generated.cxx_mod.clone();
@@ -198,7 +198,7 @@ pub fn write_rust(generated: &GeneratedRustBlocks) -> TokenStream {
         cxx_mod.content = Some((syn::token::Brace::default(), cxx_mod_contents));
     }
 
-    quote! {
+    (quote! {
         #[cxx::bridge(namespace = #namespace)]
         #cxx_mod
 
@@ -211,8 +211,7 @@ pub fn write_rust(generated: &GeneratedRustBlocks) -> TokenStream {
 
             #(#cxx_qt_mod_contents)*
         }
-    }
-    .into_token_stream()
+    }).into_token_stream()
 }
 
 #[cfg(test)]
@@ -374,7 +373,7 @@ mod tests {
 
     /// Helper for the expected Rust
     pub fn expected_rust() -> String {
-        quote! {
+        (quote! {
             #[cxx::bridge(namespace = "cxx_qt::my_object")]
             mod ffi {
                 unsafe extern "C++" {
@@ -484,14 +483,14 @@ mod tests {
                     pub type MyObject = super::MyObjectQt;
                 }
             }
-        }
+        })
         .into_token_stream()
         .to_string()
     }
 
     /// Helper for the expected Rust with multiple qobjects
     pub fn expected_rust_multi_qobjects() -> String {
-        quote! {
+        (quote! {
             #[cxx::bridge(namespace = "cxx_qt")]
             mod ffi {
                 unsafe extern "C++" {
@@ -683,7 +682,7 @@ mod tests {
                     pub type SecondObject = super::SecondObjectQt;
                 }
             }
-        }
+        })
         .into_token_stream()
         .to_string()
     }
