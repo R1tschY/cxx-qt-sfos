@@ -36,13 +36,9 @@ qdatetimeCurrentDateTimeUtc();
 ::std::int64_t
 qdatetimeCurrentMSecsSinceEpoch();
 ::std::int64_t
-qdatetimeCurrentSecsSinceEpoch();
-::std::int64_t
 qdatetimeDaysTo(const QDateTime& datetime, const QDateTime& other);
 QDateTime
 qdatetimeFromMSecsSinceEpoch(::std::int64_t msecs, const QTimeZone& timeZone);
-QDateTime
-qdatetimeFromSecsSinceEpoch(::std::int64_t secs, const QTimeZone& timeZone);
 ::std::int64_t
 qdatetimeMSecsTo(const QDateTime& datetime, const QDateTime& other);
 ::std::int64_t
@@ -52,15 +48,11 @@ qdatetimeSetDate(QDateTime& datetime, QDate date);
 void
 qdatetimeSetMSecsSinceEpoch(QDateTime& datetime, ::std::int64_t msecs);
 void
-qdatetimeSetSecsSinceEpoch(QDateTime& datetime, ::std::int64_t secs);
-void
 qdatetimeSetTime(QDateTime& datetime, QTime time);
 ::std::unique_ptr<QTimeZone>
 qdatetimeTimeZone(const QDateTime& datetime);
 ::std::int64_t
 qdatetimeToMSecsSinceEpoch(const QDateTime& datetime);
-::std::int64_t
-qdatetimeToSecsSinceEpoch(const QDateTime& datetime);
 
 }
 }

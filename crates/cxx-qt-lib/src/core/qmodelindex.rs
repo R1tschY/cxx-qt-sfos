@@ -28,12 +28,6 @@ mod ffi {
         fn row(self: &QModelIndex) -> i32;
         /// Returns the sibling at row and column. If there is no sibling at this position, an invalid QModelIndex is returned.
         fn sibling(self: &QModelIndex, row: i32, column: i32) -> QModelIndex;
-        /// Returns the sibling at column for the current row. If there is no sibling at this position, an invalid QModelIndex is returned.
-        #[rust_name = "sibling_at_column"]
-        fn siblingAtColumn(self: &QModelIndex, column: i32) -> QModelIndex;
-        /// Returns the sibling at row for the current column. If there is no sibling at this position, an invalid QModelIndex is returned.
-        #[rust_name = "sibling_at_row"]
-        fn siblingAtRow(self: &QModelIndex, row: i32) -> QModelIndex;
     }
 
     #[namespace = "rust::cxxqtlib1"]

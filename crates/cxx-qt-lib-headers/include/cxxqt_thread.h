@@ -6,13 +6,14 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 #pragma once
 
+#include <optional>
 #include <memory>
 #include <mutex>
 #include <shared_mutex>
 #include <stdexcept>
 
+#include <QtCore/QTimer>
 #include <QtCore/QDebug>
-#include <QtCore/QMetaObject>
 
 #include "rust/cxx.h"
 
@@ -31,6 +32,41 @@ public:
   T* ptr;
   ::std::shared_mutex mutex;
 };
+
+template<typename T>
+class CopyableLambda {
+public:
+    CopyableLambda(T t): t(::std::move(t)) { }
+
+    CopyableLambda(const CopyableLambda& other)
+        : t({})
+    { }
+
+    CopyableLambda& operator=(const CopyableLambda& other) {
+        this->t = ::std::move(other.t);
+        return *this;
+    }
+
+    CopyableLambda(CopyableLambda&& other)
+        : t(::std::move(other.t))
+    { }
+
+    CopyableLambda& operator=(CopyableLambda&& other) {
+        this->t = ::std::move(other.t);
+        return *this;
+    }
+
+    void operator()() {
+        this->t.value()();
+    }
+
+    std::optional<T> t;
+};
+
+template<typename T>
+CopyableLambda<T> make_copyable_lambda(T t) {
+    return { ::std::move(t) };
+}
 
 template<typename T>
 class CxxQtThread
@@ -76,11 +112,7 @@ public:
     };
 
     // Add the lambda to the queue
-    if (!QMetaObject::invokeMethod(
-          m_obj->ptr, ::std::move(lambda), Qt::QueuedConnection)) {
-      throw ::std::runtime_error(
-        "Cannot queue function pointer as invokeMethod on object failed");
-    }
+    QTimer::singleShot(0, m_obj->ptr, make_copyable_lambda(::std::move(lambda)));
   }
 
 private:

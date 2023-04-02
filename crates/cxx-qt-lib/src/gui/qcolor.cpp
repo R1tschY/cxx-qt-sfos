@@ -28,7 +28,7 @@ assert_alignment_and_size(QColor,
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
 static_assert(::std::is_trivially_copyable<QColor>::value);
 #else
-static_assert(QTypeInfo<QColor>::isRelocatable);
+/*static_assert(QTypeInfo<QColor>::isRelocatable);*/
 #endif
 
 static_assert(::std::is_trivially_destructible<QColor>::value);

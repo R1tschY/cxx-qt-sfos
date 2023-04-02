@@ -44,11 +44,6 @@ QString
 qstringMid(const QString& string, ::rust::isize position, ::rust::isize n);
 QString
 qstringRight(const QString& string, ::rust::isize n);
-QStringList
-qstringSplit(const QString& string,
-             const QString& sep,
-             Qt::SplitBehaviorFlags behavior,
-             Qt::CaseSensitivity cs);
 
 // If Q_COMPILER_REF_QUALIFIERS is set the definition of these is
 // T method() const& which CXX doesn't bind it.

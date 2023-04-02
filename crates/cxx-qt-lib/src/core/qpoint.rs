@@ -32,9 +32,6 @@ mod ffi {
         #[rust_name = "set_y"]
         fn setY(self: &mut QPoint, y: i32);
 
-        /// Returns a point with x and y coordinates exchanged
-        fn transposed(self: &QPoint) -> QPoint;
-
         /// Returns the x coordinate of this point.
         fn x(self: &QPoint) -> i32;
 

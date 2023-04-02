@@ -29,7 +29,6 @@ mod ffi {
         Hsv,
         Cmyk,
         Hsl,
-        ExtendedRgb,
     }
 
     unsafe extern "C++" {
@@ -125,9 +124,6 @@ mod ffi {
         /// Creates and returns a CMYK QColor based on this color.
         #[rust_name = "to_cmyk"]
         fn toCmyk(self: &QColor) -> QColor;
-        /// Create and returns an extended RGB QColor based on this color.
-        #[rust_name = "to_extended_rgb"]
-        fn toExtendedRgb(self: &QColor) -> QColor;
         /// Creates and returns an HSL QColor based on this color.
         #[rust_name = "to_hsl"]
         fn toHsl(self: &QColor) -> QColor;

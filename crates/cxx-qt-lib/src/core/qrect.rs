@@ -221,9 +221,6 @@ mod ffi {
         /// Returns a copy of the rectangle that is translated offset.x() along the x axis and offset.y() along the y axis, relative to the current position.
         fn translated(self: &QRect, offset: &QPoint) -> QRect;
 
-        /// Returns a copy of the rectangle that has its width and height exchanged.
-        fn transposed(self: &QRect) -> QRect;
-
         /// Returns the bounding rectangle of this rectangle and the given rectangle.
         fn united(self: &QRect, rectangle: &QRect) -> QRect;
 

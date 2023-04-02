@@ -246,10 +246,10 @@ mod tests {
         #include <memory>
         #include <mutex>
 
-        namespace rust::cxxqtlib1 {
+        namespace rust { namespace cxxqtlib1 {
         template<typename T>
         class CxxQtThread;
-        }
+        }}
 
         namespace cxx_qt::my_object {
         class MyObject;
@@ -309,10 +309,10 @@ mod tests {
         #include <memory>
         #include <mutex>
 
-        namespace rust::cxxqtlib1 {
+        namespace rust { namespace cxxqtlib1 {
         template<typename T>
         class CxxQtThread;
-        }
+        }}
 
         namespace cxx_qt {
         class FirstObject;
@@ -405,10 +405,10 @@ mod tests {
         #include <memory>
         #include <mutex>
 
-        namespace rust::cxxqtlib1 {
+        namespace rust { namespace cxxqtlib1 {
         template<typename T>
         class CxxQtThread;
-        }
+        }}
 
 
         class MyObject;

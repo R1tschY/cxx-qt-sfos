@@ -478,7 +478,6 @@ impl QtBuild {
                 input_path.to_str().unwrap(),
                 "-o",
                 output_path.to_str().unwrap(),
-                "--output-json",
             ])
             .output()
             .unwrap_or_else(|_| panic!("moc failed for {}", input_path.display()));

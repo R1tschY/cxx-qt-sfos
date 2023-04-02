@@ -14,7 +14,6 @@ mod ffi {
     unsafe extern "C++" {
         include!("cxx-qt-lib/qt.h");
         type CaseSensitivity = crate::CaseSensitivity;
-        type SplitBehaviorFlags = crate::SplitBehaviorFlags;
     }
 
     unsafe extern "C++" {
@@ -47,10 +46,6 @@ mod ffi {
         #[rust_name = "is_empty"]
         fn isEmpty(self: &QString) -> bool;
 
-        /// Returns true if the string is lowercase, that is, it's identical to its toLower() folding.
-        #[rust_name = "is_lower"]
-        fn isLower(self: &QString) -> bool;
-
         /// Returns true if this string is null; otherwise returns false.
         #[rust_name = "is_null"]
         fn isNull(self: &QString) -> bool;
@@ -58,10 +53,6 @@ mod ffi {
         /// Returns true if the string is read right to left.
         #[rust_name = "is_right_to_left"]
         fn isRightToLeft(self: &QString) -> bool;
-
-        /// Returns true if the string is uppercase, that is, it's identical to its toUpper() folding.
-        #[rust_name = "is_upper"]
-        fn isUpper(self: &QString) -> bool;
 
         /// Prepends the string str to the beginning of this string and returns a reference to this string.
         fn prepend<'a>(self: &'a mut QString, str: &QString) -> &'a mut QString;
@@ -142,14 +133,6 @@ mod ffi {
         #[doc(hidden)]
         #[rust_name = "qstring_simplified"]
         fn qstringSimplified(string: &QString) -> QString;
-        #[doc(hidden)]
-        #[rust_name = "qstring_split"]
-        fn qstringSplit(
-            string: &QString,
-            sep: &QString,
-            behavior: SplitBehaviorFlags,
-            cs: CaseSensitivity,
-        ) -> QStringList;
         #[doc(hidden)]
         #[rust_name = "qstring_to_latin1"]
         fn qstringToLatin1(string: &QString) -> QByteArray;
@@ -331,17 +314,6 @@ impl QString {
         ffi::qstring_simplified(self)
     }
 
-    /// Splits the string into substrings wherever sep occurs, and returns the list of those strings.
-    /// If sep does not match anywhere in the string, split() returns a single-element list containing this string.
-    pub fn split(
-        &self,
-        sep: &QString,
-        behavior: ffi::SplitBehaviorFlags,
-        cs: ffi::CaseSensitivity,
-    ) -> ffi::QStringList {
-        ffi::qstring_split(self, sep, behavior, cs)
-    }
-
     /// Returns a Latin-1 representation of the string as a QByteArray.
     pub fn to_latin1(&self) -> ffi::QByteArray {
         ffi::qstring_to_latin1(self)
@@ -351,16 +323,6 @@ impl QString {
     /// The returned byte array is undefined if the string contains characters not supported by the local 8-bit encoding.
     pub fn to_local8bit(&self) -> ffi::QByteArray {
         ffi::qstring_to_local8bit(self)
-    }
-
-    /// Returns a lowercase copy of the string.
-    pub fn to_lower(&self) -> Self {
-        ffi::qstring_to_lower(self)
-    }
-
-    /// Returns an uppercase copy of the string.
-    pub fn to_upper(&self) -> Self {
-        ffi::qstring_to_upper(self)
     }
 
     /// Returns a UTF-8 representation of the string as a QByteArray.

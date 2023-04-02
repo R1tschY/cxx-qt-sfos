@@ -48,10 +48,6 @@ mod ffi {
         #[rust_name = "is_valid"]
         fn isValid(self: &QSizeF) -> bool;
 
-        /// Returns the size that results from growing this size by margins.
-        #[rust_name = "grown_by"]
-        fn grownBy(self: &QSizeF, margins: QMarginsF) -> QSizeF;
-
         /// Scales the size to a rectangle with the given size, according to the specified mode.
         fn scale(self: &mut QSizeF, size: &QSizeF, mode: AspectRatioMode);
 
@@ -65,10 +61,6 @@ mod ffi {
         /// Sets the width to the given finite width.
         #[rust_name = "set_width"]
         fn setWidth(self: &mut QSizeF, width: f64);
-
-        /// Returns the size that results from shrinking this size by margins.
-        #[rust_name = "shrunk_by"]
-        fn shrunkBy(self: &QSizeF, margins: QMarginsF) -> QSizeF;
 
         /// Returns an integer based copy of this size.
         ///

@@ -126,10 +126,10 @@ pub fn write_cpp_header(generated: &GeneratedCppBlocks) -> String {
         #include <memory>
         #include <mutex>
 
-        namespace rust::cxxqtlib1 {{
+        namespace rust {{ namespace cxxqtlib1 {{
         template<typename T>
         class CxxQtThread;
-        }}
+        }}}}
 
         {forward_declare}
         #include "cxx-qt-gen/{cxx_file_stem}.cxx.h"

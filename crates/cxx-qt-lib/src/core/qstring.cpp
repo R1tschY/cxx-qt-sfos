@@ -119,7 +119,7 @@ qstringMid(const QString& string, ::rust::isize position, ::rust::isize n)
   return string.mid(static_cast<qsizetype>(position),
                     static_cast<qsizetype>(n));
 #else
-  return string.mid(static_cast<qsizetype>(position), static_cast<int>(n));
+  return string.mid(static_cast<int>(position), static_cast<int>(n));
 #endif
 }
 
@@ -133,15 +133,6 @@ qstringRight(const QString& string, ::rust::isize n)
 #else
   return string.right(static_cast<int>(n));
 #endif
-}
-
-QStringList
-qstringSplit(const QString& string,
-             const QString& sep,
-             Qt::SplitBehaviorFlags behavior,
-             Qt::CaseSensitivity cs)
-{
-  return string.split(sep, behavior, cs);
 }
 
 QString

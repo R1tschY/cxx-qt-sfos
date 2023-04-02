@@ -25,15 +25,8 @@ mod ffi {
     #[repr(i32)]
     enum DateFormat {
         TextDate = 0,
-        ISODateWithMs = 9,
         ISODate = 1,
         RFC2822Date = 8,
-    }
-
-    #[repr(i32)]
-    enum SplitBehaviorFlags {
-        KeepEmptyParts,
-        SkipEmptyParts,
     }
 
     #[repr(i32)]
@@ -53,9 +46,8 @@ mod ffi {
         type AspectRatioMode;
         type CaseSensitivity;
         type DateFormat;
-        type SplitBehaviorFlags;
         type TimeSpec;
     }
 }
 
-pub use ffi::{AspectRatioMode, CaseSensitivity, DateFormat, SplitBehaviorFlags, TimeSpec};
+pub use ffi::{AspectRatioMode, CaseSensitivity, DateFormat, TimeSpec};

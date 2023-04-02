@@ -19,8 +19,6 @@
   static_assert(                                                               \
     !::std::is_trivially_destructible<QHash_##combinedName>::value);           \
                                                                                \
-  static_assert(QTypeInfo<QHash_##combinedName>::isRelocatable);               \
-                                                                               \
   static_assert(::std::is_copy_assignable<keyTypeName>::value);                \
   static_assert(::std::is_copy_constructible<keyTypeName>::value);             \
   static_assert(::std::is_copy_assignable<valueTypeName>::value);              \
