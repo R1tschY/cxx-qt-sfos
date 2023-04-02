@@ -87,5 +87,19 @@ operatorDiv(const S scalar, const T& t)
   return t / scalar;
 }
 
+template<typename S, typename T>
+T
+operatorMulQReal(const S scalar, const T& t)
+{
+  return ((qreal)scalar) * t;
+}
+
+template<typename S, typename T>
+T
+operatorDivQReal(const S scalar, const T& t)
+{
+  return t / ((qreal)scalar);
+}
+
 } // namespace cxxqtlib1
 } // namespace rust

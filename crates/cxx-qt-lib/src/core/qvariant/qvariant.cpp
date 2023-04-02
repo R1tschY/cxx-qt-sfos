@@ -48,9 +48,9 @@ assert_alignment_and_size(QVariant,
 // alignment is 8 byte on 32bit systems as well due to the double
 assert_alignment_and_size(
   QVariant,
-  alignof(double),
+  alignof(qreal),
   (sizeof(::std::uint16_t /* compiler optimised from ::std::uint32_t */) * 3) +
-    sizeof(double) + 2 /* compiler padding */);
+    sizeof(qreal) + 2 /* compiler padding */);
 
 #endif
 

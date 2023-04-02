@@ -3,6 +3,8 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+use std::path::PathBuf;
+
 fn main() {
     let feature_qt_gui_enabled = std::env::var("CARGO_FEATURE_QT_GUI").is_ok();
     let feature_qt_qml_enabled = std::env::var("CARGO_FEATURE_QT_QML").is_ok();
@@ -25,6 +27,17 @@ fn main() {
     println!(
         "cargo:rustc-cfg=qt_version_major=\"{}\"",
         qtbuild.version().major
+    );
+
+    let qconfig = PathBuf::from(qtbuild.qmake_query("QT_INSTALL_HEADERS")).join("QtCore/qconfig.h");
+    let qreal_is_float = if let Ok(qconfig) = std::fs::read_to_string(&qconfig) {
+        qconfig.contains("#define QT_COORD_TYPE float")
+    } else {
+        false
+    };
+    println!(
+        "cargo:rustc-cfg=qt_coord_type=\"{}\"",
+        if qreal_is_float { "float" } else { "double" }
     );
 
     let mut rust_bridges = vec![
@@ -63,13 +76,10 @@ fn main() {
         "core/qlist/qlist_u64",
         "core/qmap/qmap_qstring_qvariant",
         "core/qmargins",
-        "core/qmarginsf",
         "core/qmodelindex",
         "core/qpersistentmodelindex",
         "core/qpoint",
-        "core/qpointf",
         "core/qrect",
-        "core/qrectf",
         "core/qset/qset_bool",
         "core/qset/qset_f32",
         "core/qset/qset_f64",
@@ -89,7 +99,6 @@ fn main() {
         "core/qset/qset_u32",
         "core/qset/qset_u64",
         "core/qsize",
-        "core/qsizef",
         "core/qstring",
         "core/qstringlist",
         "core/qt",
@@ -152,6 +161,22 @@ fn main() {
         "core/qvector/qvector_u64",
     ];
 
+    if qreal_is_float {
+        rust_bridges.extend(&[
+            "core/qmarginsf/qmarginsf32",
+            "core/qpointf/qpointf32",
+            "core/qrectf/qrectf32",
+            "core/qsizef/qsizef32",
+        ]);
+    } else {
+        rust_bridges.extend(&[
+            "core/qmarginsf/qmarginsf64",
+            "core/qpointf/qpointf64",
+            "core/qrectf/qrectf64",
+            "core/qsizef/qsizef64",
+        ]);
+    }
+
     if feature_qt_gui_enabled {
         rust_bridges.extend(&[
             "core/qlist/qlist_qcolor",
@@ -179,8 +204,11 @@ fn main() {
             .push(include_path.as_path());
     }
 
-    let mut builder =
-        cxx_build::bridges(rust_bridges.iter().map(|bridge| format!("src/{}.rs", bridge)));
+    let mut builder = cxx_build::bridges(
+        rust_bridges
+            .iter()
+            .map(|bridge| format!("src/{}.rs", bridge)),
+    );
 
     let mut cpp_files = vec![
         "core/qbytearray",
@@ -191,16 +219,12 @@ fn main() {
         "core/qlist/qlist",
         "core/qmap/qmap",
         "core/qmargins",
-        "core/qmarginsf",
         "core/qmodelindex",
         "core/qpersistentmodelindex",
         "core/qpoint",
-        "core/qpointf",
         "core/qrect",
-        "core/qrectf",
         "core/qset/qset",
         "core/qsize",
-        "core/qsizef",
         "core/qstring",
         "core/qstringlist",
         "core/qtime",
@@ -209,6 +233,22 @@ fn main() {
         "core/qvariant/qvariant",
         "core/qvector/qvector",
     ];
+
+    if qreal_is_float {
+        cpp_files.extend(&[
+            "core/qmarginsf/qmarginsf32",
+            "core/qpointf/qpointf32",
+            "core/qrectf/qrectf32",
+            "core/qsizef/qsizef32",
+        ]);
+    } else {
+        cpp_files.extend(&[
+            "core/qmarginsf/qmarginsf64",
+            "core/qpointf/qpointf64",
+            "core/qrectf/qrectf64",
+            "core/qsizef/qsizef64",
+        ]);
+    }
 
     if feature_qt_gui_enabled {
         cpp_files.extend(&[

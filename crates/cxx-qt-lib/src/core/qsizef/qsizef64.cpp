@@ -7,7 +7,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 #include "cxx-qt-lib/qsizef.h"
 
-#include "../assertion_utils.h"
+#include "../../assertion_utils.h"
 
 // QSizeF has two qreal members
 // https://code.qt.io/cgit/qt/qtbase.git/tree/src/corelib/tools/qsize.h?h=v5.15.6-lts-lgpl#n276

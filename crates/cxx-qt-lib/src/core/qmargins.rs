@@ -77,13 +77,13 @@ mod ffi {
         fn operatorMul(a: i32, b: &QMargins) -> QMargins;
         #[doc(hidden)]
         #[rust_name = "qmargins_mul_f64"]
-        fn operatorMul(a: f64, b: &QMargins) -> QMargins;
+        fn operatorMulQReal(a: f64, b: &QMargins) -> QMargins;
         #[doc(hidden)]
         #[rust_name = "qmargins_div_i32"]
         fn operatorDiv(a: i32, b: &QMargins) -> QMargins;
         #[doc(hidden)]
         #[rust_name = "qmargins_div_f64"]
-        fn operatorDiv(a: f64, b: &QMargins) -> QMargins;
+        fn operatorDivQReal(a: f64, b: &QMargins) -> QMargins;
     }
 }
 

@@ -12,7 +12,7 @@
 namespace rust {
 namespace cxxqtlib1 {
 
-double
+qreal
 qpointfDotProduct(const QPointF& p1, const QPointF& p2);
 
 }
